@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.SetmealDao">
+    <insert id="addSeteal" parameterType="setmeal" useGeneratedKeys="true" keyProperty="id">
+        insert into t_setmeal(name,code,helpCode,sex,age,price,remark,attention,img) values
+         (#{name},#{code},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img})
+    </insert>
+    <insert id="addSetmealOrTrave" parameterType="map">
+        insert into t_setmeal_travelgroup(setmeal_id,travelgroup_id) values (#{setmealId},#{travelgroupId})
+    </insert>
+    <select id="findPage" parameterType="string" resultType="setmeal">
+        select * from t_setmeal
+        <where>
+            <if test="value!=null and value.length>0">
+                code=#{value} or name like concat('%',#{value},'%') or helpCode=#{value}
+            </if>
+        </where>
+    </select>
+    <select id="findAll" resultType="setmeal">
+        select * from t_setmeal
+    </select>
+
+    <resultMap id="findByIdResultMap" type="setmeal">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="price" property="price"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+        <result column="img" property="img"/>
+        <collection property="travelGroups" column="id" select="com.atguigu.dao.TravelGroupDao.findTravelGroupListById"></collection>
+    </resultMap>
+    <select id="findById" parameterType="int" resultMap="findByIdResultMap">
+        select * from t_setmeal where id=#{id}
+    </select>
+    <select id="getSetMealById" parameterType="int" resultType="setmeal">
+        select * from t_setmeal where id=#{id};
+    </select>
+    <select id="findSetmealCount" resultType="map">
+        SELECT s.name AS name,COUNT(s.id) AS value FROM t_setmeal s,t_order o
+        WHERE s.id=o.setmeal_id
+        GROUP BY s.name
+        ORDER BY VALUE DESC
+        LIMIT 0,10
+    </select>
+</mapper>
